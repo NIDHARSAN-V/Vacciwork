@@ -7,10 +7,12 @@ const router = express.Router();
 router.use(protect);
 
 router.route('/')
-  .get(getEvents)
-  .post(restrictTo('incharge'), createEvent);
+    .get(getEvents)
+    .post(restrictTo('incharge'), createEvent);
 
 router.route('/:id')
-  .get(getEvent);
+    .get(getEvent)
+    .patch(restrictTo('incharge'), require('../controllers/eventController').updateEvent)
+    .delete(restrictTo('incharge'), require('../controllers/eventController').deleteEvent);
 
 module.exports = router;

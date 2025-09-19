@@ -1,3 +1,49 @@
+exports.updateEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    // Only the creator (incharge) can edit
+    if (event.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to edit this event' });
+    }
+    const { title, description, address, district, state, date } = req.body;
+    if (title) event.title = title;
+    if (description) event.description = description;
+    if (address) event.address = address;
+    if (district) event.district = district;
+    if (state) event.state = state;
+    if (date) event.date = date;
+    await event.save();
+    res.status(200).json({
+      status: 'success',
+      data: { event }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.deleteEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    // Only the creator (incharge) can delete
+    if (event.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to delete this event' });
+    }
+    await Event.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+      status: 'success',
+      data: null
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 const Event = require('../models/Event');
 const User = require('../models/User');
 const { sendEventNotification } = require('../utils/emailService');
@@ -5,7 +51,7 @@ const { sendEventNotification } = require('../utils/emailService');
 exports.createEvent = async (req, res) => {
   try {
     const { title, description, address, district, state, date } = req.body;
-     
+
     const event = await Event.create({
       title,
       description,
@@ -17,23 +63,23 @@ exports.createEvent = async (req, res) => {
     });
 
     console.log("Event created: ", event);
-    
+
     // Send notifications to all users in the same district and state
-    const users = await User.find({ 
+    const users = await User.find({
       role: 'user',
       district: district,
-      state: state 
+      state: state
     });
 
 
     console.log("Users to notify:******** ", users.length);
 
 
-    
+
     for (const user of users) {
       await sendEventNotification(user.email, event);
     }
-    
+
     res.status(201).json({
       status: 'success',
       data: {
@@ -49,7 +95,7 @@ exports.getEvents = async (req, res) => {
   try {
     const { district, state } = req.user;
     const events = await Event.find({ district, state }).populate('createdBy', 'name');
-    
+
     res.status(200).json({
       status: 'success',
       results: events.length,
@@ -65,11 +111,11 @@ exports.getEvents = async (req, res) => {
 exports.getEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id).populate('createdBy', 'name');
-    
+
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
-    
+
     res.status(200).json({
       status: 'success',
       data: {

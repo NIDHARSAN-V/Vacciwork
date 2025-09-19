@@ -7,10 +7,11 @@ const router = express.Router();
 router.use(protect);
 
 router.route('/')
-  .get(getUserReminders)
-  .post(createReminder);
+    .get(getUserReminders)
+    .post(createReminder);
 
 router.route('/:id')
-  .delete(deleteReminder);
+    .patch(require('../controllers/reminderController').updateReminder)
+    .delete(deleteReminder);
 
 module.exports = router;

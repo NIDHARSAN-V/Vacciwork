@@ -1,6 +1,6 @@
 import EventCard from './EventCard'
 
-const EventList = ({ events, onSetReminder, showReminderButton = false }) => {
+const EventList = ({ events, onSetReminder, showReminderButton = false, onEventUpdated, onEventDeleted }) => {
   if (events.length === 0) {
     return <div>No events found</div>
   }
@@ -10,7 +10,7 @@ const EventList = ({ events, onSetReminder, showReminderButton = false }) => {
       {events.map(event => (
         <EventCard 
           key={event._id} 
-          event={event} 
+          event={{ ...event, onEventUpdated, onEventDeleted }}
           onSetReminder={onSetReminder}
           showReminderButton={showReminderButton}
         />
