@@ -5,7 +5,7 @@ const { sendEventNotification } = require('../utils/emailService');
 exports.createEvent = async (req, res) => {
   try {
     const { title, description, address, district, state, date } = req.body;
-    
+     
     const event = await Event.create({
       title,
       description,
@@ -15,6 +15,8 @@ exports.createEvent = async (req, res) => {
       date,
       createdBy: req.user.id
     });
+
+    console.log("Event created: ", event);
     
     // Send notifications to all users in the same district and state
     const users = await User.find({ 
@@ -22,6 +24,11 @@ exports.createEvent = async (req, res) => {
       district: district,
       state: state 
     });
+
+
+    console.log("Users to notify:******** ", users.length);
+
+
     
     for (const user of users) {
       await sendEventNotification(user.email, event);

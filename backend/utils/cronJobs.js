@@ -4,8 +4,8 @@ const Event = require('../models/Event');
 const User = require('../models/User');
 const { sendReminderEmail } = require('./emailService');
 
-// Run every day at 9 AM
-cron.schedule('0 9 * * *', async () => {
+// Run every day at 8 AM
+cron.schedule('0 8 * * *', async () => {
   try {
     console.log('Running daily reminder job...');
     
